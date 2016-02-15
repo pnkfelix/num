@@ -89,6 +89,7 @@ use traits::{ToPrimitive, FromPrimitive};
 use traits::Float;
 
 use {Num, Unsigned, CheckedAdd, CheckedSub, CheckedMul, CheckedDiv, Signed, Zero, One};
+use traits;
 use self::Sign::{Minus, NoSign, Plus};
 
 /// A `BigDigit` is a `BigUint`'s composing element.
@@ -360,8 +361,8 @@ fn from_radix_digits_be(v: &[u8], radix: u32) -> BigUint {
     BigUint::new(data)
 }
 
-impl Num for BigUint {
-    type FromStrRadixErr = ParseBigIntError;
+impl traits::FromStrRadix for BigUint {
+    type Error = ParseBigIntError;
 
     /// Creates and initializes a `BigUint`.
     fn from_str_radix(s: &str, radix: u32) -> Result<BigUint, ParseBigIntError> {
@@ -1885,14 +1886,14 @@ impl FromStr for BigInt {
     }
 }
 
-impl Num for BigInt {
-    type FromStrRadixErr = ParseBigIntError;
+impl traits::FromStrRadix for BigInt {
+    type Error = ParseBigIntError;
 
     /// Creates and initializes a BigInt.
     #[inline]
     fn from_str_radix(mut s: &str, radix: u32) -> Result<BigInt, ParseBigIntError> {
         let sign = if s.starts_with('-') { s = &s[1..]; Minus } else { Plus };
-        let bu = try!(BigUint::from_str_radix(s, radix));
+        let bu = try!(<BigUint as Num>::from_str_radix(s, radix));
         Ok(BigInt::from_biguint(sign, bu))
     }
 }

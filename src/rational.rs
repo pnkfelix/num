@@ -20,7 +20,7 @@ use std::str::FromStr;
 
 #[cfg(feature = "bigint")]
 use bigint::{BigInt, BigUint, Sign};
-use traits::{FromPrimitive, Float, PrimInt};
+use traits::{self, FromPrimitive, Float, PrimInt};
 use {Num, Signed, Zero, One};
 
 /// Represents the ratio between 2 numbers.
@@ -397,8 +397,8 @@ impl<T: Clone + Integer + PartialOrd>
     }
 }
 
-impl<T: Clone + Integer + PartialOrd> Num for Ratio<T> {
-    type FromStrRadixErr = ParseRatioError;
+impl<T: Clone + Integer + PartialOrd> traits::FromStrRadix for Ratio<T> {
+    type Error = ParseRatioError;
 
     /// Parses `numer/denom` where the numbers are in base `radix`.
     fn from_str_radix(s: &str, radix: u32) -> Result<Ratio<T>, ParseRatioError> {
@@ -406,12 +406,12 @@ impl<T: Clone + Integer + PartialOrd> Num for Ratio<T> {
         if split.len() < 2 {
             Err(ParseRatioError{kind: RatioErrorKind::ParseError})
         } else {
-            let a_result: Result<T, _> = T::from_str_radix(
+            let a_result: Result<T, _> = <T as Num>::from_str_radix(
                 split[0],
                 radix).map_err(|_| ParseRatioError{kind: RatioErrorKind::ParseError});
             a_result.and_then(|a| {
                 let b_result: Result<T, _>  =
-                    T::from_str_radix(split[1], radix).map_err(
+                    <T as Num>::from_str_radix(split[1], radix).map_err(
                         |_| ParseRatioError{kind: RatioErrorKind::ParseError});
                 b_result.and_then(|b| if b.is_zero() {
                     Err(ParseRatioError{kind: RatioErrorKind::ZeroDenominator})

@@ -17,6 +17,9 @@ complex, rational, range iterators, generic integers, and more!
 rustc-serialize = { version = "0.3.13", optional = true }
 rand = { version = "0.3.8", optional = true }
 
+[dependencies.num-traits]
+path = "./traits"
+
 [dev-dependencies]
 # Some tests of non-rand functionality still use rand because the tests
 # themselves are randomized.
